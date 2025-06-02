@@ -18,7 +18,20 @@ def get_empty_figure():
 
     # TODO : Construct the empty figure to display. Make sure to 
     # set dragmode=False in the layout.
-    return None
+    fig = px.scatter()
+    fig.update_layout(
+        annotations=[
+            dict(
+                text="No data to display. Select a cell in the heatmap for more information.",
+                x=0.5, y=0.5,
+                showarrow=False,
+            )
+        ],
+        xaxis=dict(visible=False),
+        yaxis=dict(visible=False),
+        dragmode=False)
+
+    return fig
 
 
 def add_rectangle_shape(fig):
@@ -32,7 +45,23 @@ def add_rectangle_shape(fig):
         0.25% to 0.75% the height of the figure.
     '''
     # TODO : Draw the rectangle
-    return None
+    fig.update_layout(
+        shapes=[
+            dict(
+                type="rect",
+                xref="paper",
+                yref="paper",
+                x0=0,
+                y0=0.25,
+                x1=1,
+                y1=0.75,
+                fillcolor=THEME['pale_color'],
+                layer="below",
+                line_width=0
+            )
+        ]
+    )
+    return fig
 
 
 def get_figure(line_data, arrond, year):
@@ -57,4 +86,32 @@ def get_figure(line_data, arrond, year):
             The figure to be displayed
     '''
     # TODO : Construct the required figure. Don't forget to include the hover template
-    return None
+    non_zero_points = line_data[line_data['Counts'] > 0]
+    if non_zero_points.shape[0] == 1:
+        fig = px.scatter(
+            non_zero_points,
+            labels={"Date_Plantation": "Date", "Counts": "Trees"},
+            title=f"Trees planted in {arrond} in {year}",
+            x='Date_Plantation',
+            y='Counts'
+        )
+    else: 
+        fig = px.line(
+            line_data,
+            labels={"Date_Plantation": "Date", "Counts": "Trees"},
+            title=f"Trees planted in {arrond} in {year}",
+            x='Date_Plantation',
+            y='Counts',
+            line_shape='linear'
+        )
+
+    fig.update_layout(
+        xaxis_tickformat='%d %b',
+        yaxis_title="Trees",
+        xaxis_title="",
+        xaxis=dict(tickangle=-45)
+
+    )
+
+    fig.update_traces(hovertemplate=hover_template.get_linechart_hover_template())
+    return fig
