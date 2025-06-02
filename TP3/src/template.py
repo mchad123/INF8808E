@@ -60,7 +60,7 @@ def create_custom_theme():
             hovermode='closest',
             colorway=[THEME['line_chart_color']],
             coloraxis=dict(colorscale=THEME['colorscale']),
-            xaxis=dict(tickangle=45)
+            xaxis=dict(tickangle=-45)
         )
     )
 

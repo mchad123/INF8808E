@@ -31,8 +31,7 @@ def get_figure(data):
         xaxis_title='Year',
         yaxis_title='Neighborhood',
         coloraxis_colorbar=dict(title='Trees'),
-        dragmode=False,
-        xaxis=dict(tickangle=-45)
+        dragmode=False
     )
 
     fig.update_traces(hovertemplate=hover_template.get_heatmap_hover_template())

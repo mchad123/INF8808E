@@ -108,9 +108,7 @@ def get_figure(line_data, arrond, year):
     fig.update_layout(
         xaxis_tickformat='%d %b',
         yaxis_title="Trees",
-        xaxis_title="",
-        xaxis=dict(tickangle=-45)
-
+        xaxis_title=""
     )
 
     fig.update_traces(hovertemplate=hover_template.get_linechart_hover_template())
