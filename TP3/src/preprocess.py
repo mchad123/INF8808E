@@ -92,14 +92,22 @@ def get_daily_info(dataframe, arrond, year):
             neighborhood and year.
     '''
     # TODO : Get daily tree count data and return
-    df_filtered = dataframe[(dataframe['Arrond_Nom'] == arrond) & 
-                          (dataframe['Date_Plantation'].dt.year == year)]
+    df_filtered = dataframe[(dataframe['Arrond_Nom'] == arrond) &
+                           (dataframe['Date_Plantation'].dt.year == year)]
     
-    daily_counts = df_filtered.groupby(df_filtered['Date_Plantation']).size().reset_index(name='Counts')
-
-    daily_df = pd.DataFrame({'Date_Plantation': pd.date_range(start=f'{year}-01-01', end=f'{year}-12-31')})
+    if df_filtered.empty:
+        return pd.DataFrame(columns=['Date_Plantation', 'Counts'])
     
-    daily_df = daily_df.merge(daily_counts, on='Date_Plantation', how='left').fillna(0)
-    daily_df["Counts"] = daily_df['Counts'].astype(int)
-
+    daily_counts = df_filtered.groupby(df_filtered['Date_Plantation'].dt.date).size().reset_index(name='Counts')
+    daily_counts['Date_Plantation'] = pd.to_datetime(daily_counts['Date_Plantation'])
+    
+    first_date = daily_counts['Date_Plantation'].min()
+    last_date = daily_counts['Date_Plantation'].max()
+    
+    date_range = pd.date_range(start=first_date, end=last_date, freq='D')
+    complete_daily_df = pd.DataFrame({'Date_Plantation': date_range})
+    
+    daily_df = complete_daily_df.merge(daily_counts, on='Date_Plantation', how='left').fillna(0)
+    daily_df['Counts'] = daily_df['Counts'].astype(int)
+    
     return daily_df

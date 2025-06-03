@@ -33,6 +33,10 @@ def get_figure(data):
         coloraxis_colorbar=dict(title='Trees'),
         dragmode=False
     )
+    fig.update_xaxes(
+        dtick=1,
+        tick0=0 
+    )
 
     fig.update_traces(hovertemplate=hover_template.get_heatmap_hover_template())
 
