@@ -3,9 +3,7 @@
 '''
 import plotly.express as px
 import hover_template
-
 from template import THEME
-
 
 def get_empty_figure():
     '''
@@ -13,23 +11,25 @@ def get_empty_figure():
 
         The text to display is : 'No data to display. Select a cell
         in the heatmap for more information.
-
     '''
-
-    # TODO : Construct the empty figure to display. Make sure to 
-    # set dragmode=False in the layout.
+    
     fig = px.scatter()
     fig.update_layout(
         annotations=[
             dict(
-                text="No data to display. Select a cell in the heatmap for more information.",
+                text="No data to display. Select a cell<br>in the heatmap for more information.",
                 x=0.5, y=0.5,
+                xref="paper",
+                yref="paper",
                 showarrow=False,
+                font=dict(size=16, family=THEME['font_family'], color=THEME['dark_color'])
             )
         ],
-        xaxis=dict(visible=False),
-        yaxis=dict(visible=False),
-        dragmode=False)
+        xaxis=dict(visible=False, showline=False),
+        yaxis=dict(visible=False, showline=False),
+        dragmode=False,
+
+    )
 
     return fig
 
@@ -44,7 +44,7 @@ def add_rectangle_shape(fig):
         paper of the figure. The height goes from
         0.25% to 0.75% the height of the figure.
     '''
-    # TODO : Draw the rectangle
+    
     fig.update_layout(
         shapes=[
             dict(
@@ -57,7 +57,6 @@ def add_rectangle_shape(fig):
                 y1=0.75,
                 fillcolor=THEME['pale_color'],
                 layer="below",
-                line_width=0
             )
         ]
     )
@@ -85,36 +84,79 @@ def get_figure(line_data, arrond, year):
         Returns:
             The figure to be displayed
     '''
-    # TODO : Construct the required figure. Don't forget to include the hover template
-    non_zero_points = line_data[line_data['Counts'] > 0]
-    if non_zero_points.shape[0] == 1:
+    
+    non_zero_data = line_data[line_data['Counts'] > 0]
+    if len(non_zero_data) == 0:
+        return get_empty_figure()
+    
+    first_date = non_zero_data['Date_Plantation'].min()
+    
+    first_planting_index = line_data[line_data['Date_Plantation'] == first_date].index[0]
+    data_from_first_planting = line_data.iloc[first_planting_index:].copy()
+    
+    planting_days_count = len(non_zero_data)
+    
+    if planting_days_count == 1:
         fig = px.scatter(
-            non_zero_points,
-            labels={"Date_Plantation": "Date", "Counts": "Trees"},
-            title=f"Trees planted in {arrond} in {year}",
-            x='Date_Plantation',
-            y='Counts'
-        )
-    else: 
-        fig = px.line(
-            line_data,
-            labels={"Date_Plantation": "Date", "Counts": "Trees"},
-            title=f"Trees planted in {arrond} in {year}",
+            non_zero_data,
             x='Date_Plantation',
             y='Counts',
-            line_shape='linear'
+            title=f"Trees planted in {arrond} in {year}"
         )
-
+        
+        fig.update_traces(
+            marker=dict(
+                size=8, 
+                color=THEME['line_chart_color'],
+                line=dict(width=1, color='white')
+            ),
+        )
+        
+        fig.update_xaxes(
+            tickformat="%d %b",
+            title=""
+        )
+        
+    else:
+        fig = px.line(
+            data_from_first_planting,
+            x='Date_Plantation',
+            y='Counts',
+            title=f"Trees planted in {arrond} in {year}"
+        )
+        
+        fig.update_traces(
+            line=dict(
+                color=THEME['line_chart_color'], 
+                width=2
+            ),
+        )
+        
+        fig.update_xaxes(
+            tickformat="%d %b",
+            title=""
+        )
+    
     fig.update_layout(
-        xaxis_tickformat='%d %b',
+        title=dict(
+            font=dict(
+                size=16, 
+                family=THEME['accent_font_family'], 
+                color=THEME['dark_color']
+            )
+        ),
         yaxis_title="Trees",
-        xaxis_title="",
-
+        dragmode=False,
+        margin=dict(l=60, r=20, t=60, b=60)
     )
+    
     fig.update_xaxes(
-        dtick="M1",
-        tickformat="%d %b",
-        ticklabelmode="period" 
+        tickfont=dict(size=12, family=THEME['font_family'])
+    )
+    
+    fig.update_yaxes(
+        tickfont=dict(size=12, family=THEME['font_family']),
+        gridwidth=1
     )
 
     fig.update_traces(hovertemplate=hover_template.get_linechart_hover_template())

@@ -3,6 +3,8 @@
 '''
 import plotly.express as px
 import hover_template
+from template import THEME
+
 
 
 def get_figure(data):
@@ -24,7 +26,7 @@ def get_figure(data):
     fig = px.imshow(
         data,
         labels={'x': 'Year', 'y': 'Neighborhood', 'color': 'Trees'},
-        color_continuous_scale='Bluyl'
+        color_continuous_scale=THEME['colorscale']
     )
 
     fig.update_layout(
