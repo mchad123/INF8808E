@@ -57,6 +57,7 @@ def add_rectangle_shape(fig):
                 y1=0.75,
                 fillcolor=THEME['pale_color'],
                 layer="below",
+                line=dict(width=0, color='rgba(0,0,0,0)')
             )
         ]
     )
