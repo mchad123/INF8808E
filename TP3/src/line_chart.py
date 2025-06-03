@@ -17,12 +17,12 @@ def get_empty_figure():
     fig.update_layout(
         annotations=[
             dict(
-                text="No data to display. Select a cell<br>in the heatmap for more information.",
+                text="No data to display. Select a cell in the heatmap for more information.",
                 x=0.5, y=0.5,
                 xref="paper",
                 yref="paper",
                 showarrow=False,
-                font=dict(size=16, family=THEME['font_family'], color=THEME['dark_color'])
+                font=dict(size=12, family=THEME['accent_font_family'], color=THEME['dark_color'])
             )
         ],
         xaxis=dict(visible=False, showline=False),
@@ -57,7 +57,8 @@ def add_rectangle_shape(fig):
                 y1=0.75,
                 fillcolor=THEME['pale_color'],
                 layer="below",
-                line=dict(width=0, color='rgba(0,0,0,0)')
+                line=dict(width=0, color='rgba(0,0,0,0)'),
+                
             )
         ]
     )
