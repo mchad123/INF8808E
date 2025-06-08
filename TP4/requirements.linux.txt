@@ -57,3 +57,5 @@ werkzeug==2.2.2
     # via flask
 zipp==3.10.0
     # via importlib-metadata
+jupyter-dash==0.4.2
+    # via -r requirements.linux.in
