@@ -22,6 +22,7 @@ def get_bubble_hover_template():
         "<b>Population:</b> <span style='font-weight:normal'>%{marker.size}</span><br>"
         "<b>GDP:</b> <span style='font-weight:normal'>%{x} $ (USD)</span><br>"
         "<b>CO2 emissions:</b> <span style='font-weight:normal'>%{y} metric tons</span><br>"
+        "<extra></extra>"
     )
 
     return hover_template
