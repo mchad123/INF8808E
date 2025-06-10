@@ -66,7 +66,8 @@ app.layout = html.Div(
                 'alignItems': 'center'},
             children=[
                 html.Div(id='panel', style={
-                    'visibility': 'hidden',
+                    # 'visibility': 'hidden',
+                    'display': 'none',
                     'border': '1px solid black',
                     'padding': '10px'},
                          children=[
@@ -109,8 +110,9 @@ def display(clicks_fig, figure, title, mode, theme, style): # noqa : E501 pylint
     '''
     ctx = dash.callback_context
 
-    if not ctx.triggered:
+    if not ctx.triggered or clicks_fig is None:
         return callback.no_clicks(style)
+    
     if ctx.triggered[0]['prop_id'].split('.')[0] == 'graph':
         curve = ctx.triggered[0]['value']['points'][0]['curveNumber']
         point = ctx.triggered[0]['value']['points'][0]['pointNumber']
