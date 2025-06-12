@@ -40,8 +40,6 @@ def map_base_clicked(title, mode, theme, style):
             style: The updated display style for the panel
     '''
     # TODO : Handle clicks on the map base
-    new_style = style.copy()
-    new_style["display"] = "none"
     return title, mode, theme, style
 
 
