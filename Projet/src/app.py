@@ -2,6 +2,8 @@ import dash
 import pandas as pd
 from dash import Dash, dash_table, dcc, html, Input, Output, State
 import plotly.express as px
+from map import get_viz2
+
 
 app = Dash(__name__)
 server = app.server
@@ -60,7 +62,10 @@ def render_content(tab, s1, s2, s3, s4, s5):
     if tab == "viz1":
         return html.Div("Visualization 1 goes here")
     elif tab == "viz2":
-        return html.Div("Visualization 2 goes here")
+         return html.Div([
+        html.H4("Carte des crimes à Montréal"),
+        get_viz2()
+    ])
     elif tab == "viz3":
         return html.Div("Visualization 3 goes here")
     elif tab == "viz4":
