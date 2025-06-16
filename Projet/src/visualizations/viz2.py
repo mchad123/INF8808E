@@ -74,7 +74,6 @@ def filter_data(start_year, end_year, pdq=None):
 import plotly.express as px
 
 def create_bar_chart(df):
-    # Compter les crimes par tranche horaire
     quart_counts = (
         df["Time of Day"]
           .value_counts()
@@ -133,7 +132,6 @@ def create_line_chart(df: pd.DataFrame):
     night_trend = night_df.groupby("Year").size().reset_index(name="Crimes")
     night_trend["YoY Change (%)"] = night_trend["Crimes"].pct_change().fillna(0) * 100
 
-    # Transformer l’année en chaîne pour la traiter comme catégorie
     night_trend["Year"] = night_trend["Year"].astype(str)
 
     fig = go.Figure(
@@ -158,8 +156,7 @@ def create_line_chart(df: pd.DataFrame):
         showlegend=False,
     )
 
-    # Afficher uniquement les années entières, sans décimales parasites
-    fig.update_xaxes(type="category")      # traite X comme des catégories (2015, 2016…)
+    fig.update_xaxes(type="category")
     return fig
 
 
