@@ -1,5 +1,6 @@
 from dash import Input, Output, html
 import visualizations.viz1 as viz1
+import visualizations.viz2 as viz2
 import visualizations.viz3 as viz3
 import visualizations.viz5 as viz5
 
@@ -22,8 +23,8 @@ def register_callbacks(app):
     def render_tab(tab):
         if tab == "viz1":
             return viz1.layout()
-        # elif tab == "viz2":
-        #     return html.Div("Visualization 2 goes here")
+        elif tab == "viz2":
+            return viz2.layout()
         elif tab == "viz3":
            return viz3.layout()
         # elif tab == "viz4":
