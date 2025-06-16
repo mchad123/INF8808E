@@ -1,5 +1,5 @@
 from dash import Dash, dcc, html
-from visualizations import viz1
+from visualizations import viz1, viz2
 from callbacks import register_callbacks
 
 app = Dash(__name__, suppress_callback_exceptions=True)
