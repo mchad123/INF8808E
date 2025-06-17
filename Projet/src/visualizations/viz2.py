@@ -174,7 +174,6 @@ def layout():
 
     return html.Div([
         html.H3("Crime Analysis by Time and Day Type (2015–2025)"),
-        html.P("This visualization explores how crime in Montreal has changed over time, focusing on three key aspects: time of day, day of the week, and long-term trends in night-time activity. It consists of three connected charts that highlight different dimensions of temporal crime data from 2015 to 2025."),
 
         html.Div([
             html.Label("Select PDQ:"),

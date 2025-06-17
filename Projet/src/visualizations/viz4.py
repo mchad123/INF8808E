@@ -83,7 +83,6 @@ def create_pdq_table():
     """
     pdq_dim = create_pdq_dimension_table()
     
-    # Sort by PDQ number for easy reference
     pdq_dim = pdq_dim.sort_values('PDQ')
     
     return html.Div([
@@ -115,23 +114,19 @@ def create_scatter_plot():
     """
     try:
         # Load and prepare data
-        df = pd.read_csv("data/actes-criminels.csv")  # Update path if needed
+        df = pd.read_csv("data/actes-criminels.csv")
         df['DATE'] = pd.to_datetime(df['DATE'])
         df['YEAR'] = df['DATE'].dt.year
         
-        # Load PDQ dimension table
         pdq_dim = create_pdq_dimension_table()
         
-        # Create data points for each PDQ-Year combination
         scatter_data = []
         
-        # Create PDQ dimension table for tooltips
         pdq_dim = create_pdq_dimension_table()
         
         for pdq in df['PDQ'].unique():
             pdq_data = df[df['PDQ'] == pdq]
             
-            # Get PDQ information for tooltip
             pdq_info = pdq_dim[pdq_dim['PDQ'] == pdq]
             if not pdq_info.empty:
                 area = pdq_info.iloc[0]['area']
@@ -160,19 +155,18 @@ def create_scatter_plot():
         
         scatter_df = pd.DataFrame(scatter_data)
         
-        # Create the scatter plot (keeping original design)
         fig = px.scatter(
             scatter_df,
             x='YEAR',
             y='PDQ',
-            color='dominant_crime',  # Back to original coloring
+            color='dominant_crime', 
             size='crimes_this_year',
             hover_data={
                 'PDQ': True,
                 'YEAR': True,
                 'crimes_this_year': True,
                 'dominant_crime': True,
-                'PDQ_Info': True  # Add PDQ information to hover
+                'PDQ_Info': True 
             },
             title='Montreal Crime Analysis: Years vs PDQs',
             labels={
@@ -184,7 +178,6 @@ def create_scatter_plot():
             }
         )
         
-        # Customize the plot
         fig.update_traces(
             marker=dict(
                 opacity=0.7,
