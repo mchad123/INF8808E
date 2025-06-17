@@ -1,41 +1,44 @@
-from dash import html, dcc
 import pandas as pd
 import plotly.graph_objects as go
+from dash import html, dcc
+
+
+df = pd.read_csv("data/actes-criminels.csv")
+df.rename(columns={
+    "CATEGORIE": "CrimeType",
+    "LONGITUDE": "Longitude",
+    "LATITUDE": "Latitude"
+}, inplace=True)
+df["DATE"] = pd.to_datetime(df["DATE"], errors="coerce")
+df = df.dropna(subset=["DATE"])
+df["Month"] = df["DATE"].dt.month
+df["Year"] = df["DATE"].dt.year
+
+def get_season(m):
+    return (
+        "Winter" if m in [12, 1, 2] else
+        "Spring" if m in [3, 4, 5] else
+        "Summer" if m in [6, 7, 8] else
+        "Fall"
+    )
+
+df["Season"] = df["Month"].apply(get_season)
+df["CrimeType"] = df["CrimeType"].str.strip().str.lower().str.title()
+
+quart_translation = {
+    "Jour": "Day",
+    "Soir": "Evening",
+    "Nuit": "Night"
+}
+df["QUART"] = df["QUART"].str.strip().str.capitalize().map(quart_translation)
+
+
+heat_quart = df.groupby(["CrimeType", "QUART"]).size().unstack(fill_value=0)
+heat_season = df.groupby(["CrimeType", "Season"]).size().unstack(fill_value=0)
+heat_year = df.groupby(["CrimeType", "Year"]).size().unstack(fill_value=0)
+
 
 def layout():
-    df = pd.read_csv("data/actes-criminels.csv")
-    df.rename(columns={
-        "CATEGORIE": "CrimeType",
-        "LONGITUDE": "Longitude",
-        "LATITUDE": "Latitude"
-    }, inplace=True)
-    df["DATE"] = pd.to_datetime(df["DATE"], errors="coerce")
-    df = df.dropna(subset=["DATE"])
-    df["Month"] = df["DATE"].dt.month
-    df["Year"] = df["DATE"].dt.year
-
-    def get_season(m):
-        return (
-            "Winter" if m in [12, 1, 2] else
-            "Spring" if m in [3, 4, 5] else
-            "Summer" if m in [6, 7, 8] else
-            "Fall"
-        )
-
-    df["Season"] = df["Month"].apply(get_season)
-    df["CrimeType"] = df["CrimeType"].str.strip().str.lower().str.title()
-
-    quart_translation = {
-        "Jour": "Day",
-        "Soir": "Evening",
-        "Nuit": "Night"
-    }
-    df["QUART"] = df["QUART"].str.strip().str.capitalize().map(quart_translation)
-
-    heat_quart = df.groupby(["CrimeType", "QUART"]).size().unstack(fill_value=0)
-    heat_season = df.groupby(["CrimeType", "Season"]).size().unstack(fill_value=0)
-    heat_year = df.groupby(["CrimeType", "Year"]).size().unstack(fill_value=0)
-
     fig = go.Figure()
 
     fig.add_trace(go.Heatmap(
@@ -55,7 +58,8 @@ def layout():
         colorscale="YlOrRd",
         colorbar_title="Crimes",
         visible=False,
-        name="Season"
+        name="Season",
+        hovertemplate="<b>x:</b> %{x}<br><b>y:</b> %{y}<br><b>z:</b> %{z:.3s}<extra></extra>"
     ))
 
     fig.add_trace(go.Heatmap(
@@ -65,7 +69,8 @@ def layout():
         colorscale="YlOrRd",
         colorbar_title="Crimes",
         visible=False,
-        name="Year"
+        name="Year",
+        hovertemplate="<b>x:</b> %{x}<br><b>y:</b> %{y}<br><b>z:</b> %{z:.3s}<extra></extra>"
     ))
 
     fig.update_layout(
