@@ -1,4 +1,4 @@
-from dash import html, dcc
+from dash import html, dcc, callback, Input, Output, dash_table
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -56,68 +56,120 @@ def create_pdq_dimension_table():
            rename(columns={'index': 'PDQ'})
 
 def layout():
-    """
-    Returns the layout for visualization 2 - Crime Scatter Plot
-    """
-    # Create the figure and PDQ table
-    fig = create_scatter_plot()
-    pdq_table = create_pdq_table()
+    try:
+        df = data_manager.get_data_for_viz4()
+        df['YEAR'] = df['DATE'].dt.year
+        pdq_dim = create_pdq_dimension_table()
+        
+        years = [int(year) for year in sorted(df['YEAR'].unique())]
+        districts = sorted(pdq_dim['district'].unique())
+        
+    except Exception:
+        years = list(range(2015, 2025))
+        districts = ['West', 'East', 'North', 'South Central']
     
     return html.Div([
         html.H3("Crime Scatter Plot Analysis"),
         html.P("This visualization shows the relationship between years, PDQs, and crime patterns in Montreal."),
         
-        # Original graph
-        dcc.Graph(figure=fig),
+        html.Div([
+            html.Div([
+                html.Label("Filter by Years:", style={'font-weight': 'bold'}),
+                dcc.RangeSlider(
+                    id='year-filter',
+                    min=int(min(years)),
+                    max=int(max(years)),
+                    step=1,
+                    marks={year: str(year) for year in years[::2]},
+                    value=[int(min(years)), int(max(years))],
+                    tooltip={"placement": "bottom", "always_visible": True}
+                )
+            ], style={'width': '48%', 'display': 'inline-block', 'margin-right': '4%'}),
+            
+            html.Div([
+                html.Label("Filter by Districts:", style={'font-weight': 'bold'}),
+                dcc.Dropdown(
+                    id='district-filter',
+                    options=[{'label': district, 'value': district} for district in districts],
+                    value=districts,
+                    multi=True,
+                    placeholder="Select districts..."
+                )
+            ], style={'width': '48%', 'display': 'inline-block'})
+        ], style={'background-color': '#f8f9fa', 'padding': '20px', 'border-radius': '10px', 'margin-bottom': '20px'}),
         
-        # PDQ Information Table
+        dcc.Graph(id='crime-scatter-plot', figure=create_scatter_plot()),
+        
         html.Div([
             html.H4("PDQ (Police District) Reference Guide", style={'margin-top': '40px'}),
-            html.P("PDQ = Poste de quartier (Neighborhood Police Station). Use this table to understand what area each PDQ number represents:"),
-            pdq_table
+            html.P("PDQ = Poste de quartier (Neighborhood Police Station). Use this table to understand what area each PDQ number represents."),
+            html.Div(id='pdq-table-div')
         ])
     ])
 
-def create_pdq_table():
+@callback(
+    Output('pdq-table-div', 'children'),
+    [Input('district-filter', 'value')]
+)
+def update_pdq_table(selected_districts):
+    return create_pdq_table(selected_districts)
+
+@callback(
+    Output('crime-scatter-plot', 'figure'),
+    [Input('year-filter', 'value'),
+     Input('district-filter', 'value')]
+)
+def update_scatter_plot(year_range, selected_districts):
+    return create_scatter_plot(year_range, selected_districts)
+
+def create_pdq_table(selected_districts=None):
     """
-    Create a formatted table showing PDQ information
+    Create a formatted table showing PDQ information - now interactive
     """
     pdq_dim = create_pdq_dimension_table()
     
-    # Sort by PDQ number for easy reference
+    if selected_districts:
+        pdq_dim = pdq_dim[pdq_dim['district'].isin(selected_districts)]
+    
     pdq_dim = pdq_dim.sort_values('PDQ')
     
-    return html.Div([
-        html.Table([
-            html.Thead([
-                html.Tr([
-                    html.Th("PDQ", style={'padding': '10px', 'border': '1px solid #ddd', 'background-color': '#f2f2f2'}),
-                    html.Th("District", style={'padding': '10px', 'border': '1px solid #ddd', 'background-color': '#f2f2f2'}),
-                    html.Th("Area/Neighborhood", style={'padding': '10px', 'border': '1px solid #ddd', 'background-color': '#f2f2f2'}),
-                    html.Th("Type", style={'padding': '10px', 'border': '1px solid #ddd', 'background-color': '#f2f2f2'}),
-                    html.Th("Description", style={'padding': '10px', 'border': '1px solid #ddd', 'background-color': '#f2f2f2'})
-                ])
-            ]),
-            html.Tbody([
-                html.Tr([
-                    html.Td(str(row['PDQ']), style={'padding': '8px', 'border': '1px solid #ddd'}),
-                    html.Td(row['district'], style={'padding': '8px', 'border': '1px solid #ddd'}),
-                    html.Td(row['area'], style={'padding': '8px', 'border': '1px solid #ddd'}),
-                    html.Td(row['type'], style={'padding': '8px', 'border': '1px solid #ddd'}),
-                    html.Td(row['description'], style={'padding': '8px', 'border': '1px solid #ddd'})
-                ]) for _, row in pdq_dim.iterrows()
-            ])
-        ], style={'border-collapse': 'collapse', 'width': '100%', 'margin-top': '20px'})
-    ])
+    return dash_table.DataTable(
+        id='pdq-table-interactive',
+        data=pdq_dim.to_dict('records'),
+        columns=[
+            {'name': 'PDQ', 'id': 'PDQ'},
+            {'name': 'District', 'id': 'district'},
+            {'name': 'Area/Neighborhood', 'id': 'area'},
+            {'name': 'Type', 'id': 'type'},
+            {'name': 'Description', 'id': 'description'}
+        ],
+        selected_rows=[],
+        style_cell={'textAlign': 'left', 'padding': '10px'},
+        style_header={'backgroundColor': '#f2f2f2', 'fontWeight': 'bold'},
+        style_data_conditional=[{
+            'if': {'row_index': 'odd'},
+            'backgroundColor': '#f8f9fa'
+        }],
+        page_size=20
+    )
 
-def create_scatter_plot():
+def create_scatter_plot(year_range=None, selected_districts=None):
     """
     Create the scatter plot figure with enhanced PDQ information
+    YOUR ORIGINAL FUNCTION - just added filtering parameters
     """
     try:
         # OPTIMISATION: Utilisation du gestionnaire de données centralisé
         df = data_manager.get_data_for_viz4()
         df['YEAR'] = df['DATE'].dt.year
+        
+        if year_range:
+            df = df[(df['YEAR'] >= year_range[0]) & (df['YEAR'] <= year_range[1])]
+        
+        if selected_districts:
+            pdq_dim = create_pdq_dimension_table()
+            district_pdqs = pdq_dim[pdq_dim['district'].isin(selected_districts)]['PDQ'].tolist()
+            df = df[df['PDQ'].isin(district_pdqs)]
         
         # Load PDQ dimension table
         pdq_dim = create_pdq_dimension_table()
@@ -160,19 +212,22 @@ def create_scatter_plot():
         
         scatter_df = pd.DataFrame(scatter_data)
         
+        # For now, keep original opacity without table interaction
+        scatter_df['opacity'] = 0.7
+        
         # Create the scatter plot (keeping original design)
         fig = px.scatter(
             scatter_df,
             x='YEAR',
             y='PDQ',
-            color='dominant_crime',  # Back to original coloring
+            color='dominant_crime',
             size='crimes_this_year',
             hover_data={
                 'PDQ': True,
                 'YEAR': True,
                 'crimes_this_year': True,
                 'dominant_crime': True,
-                'PDQ_Info': True  # Add PDQ information to hover
+                'PDQ_Info': True  
             },
             title='Montreal Crime Analysis: Years vs PDQs',
             labels={
@@ -184,10 +239,9 @@ def create_scatter_plot():
             }
         )
         
-        # Customize the plot
         fig.update_traces(
             marker=dict(
-                opacity=0.7,
+                opacity=scatter_df['opacity'], 
                 line=dict(width=1, color='white')
             )
         )
