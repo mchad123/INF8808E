@@ -104,40 +104,40 @@ def layout():
     ))
 
     fig.update_layout(
-        title="Crime Heatmap Analysis",
-        xaxis_title="Time Period",
-        yaxis_title="Crime Type",
-        height=600,
-        updatemenus=[
-            dict(
-                type="buttons",
-                direction="left",
-                buttons=list([
-                    dict(
-                        args=[{"visible": [True, False, False]}],
-                        label="By Time of Day",
-                        method="restyle"
-                    ),
-                    dict(
-                        args=[{"visible": [False, True, False]}],
-                        label="By Season",
-                        method="restyle"
-                    ),
-                    dict(
-                        args=[{"visible": [False, False, True]}],
-                        label="By Year",
-                        method="restyle"
-                    )
-                ]),
-                pad={"r": 10, "t": 10},
-                showactive=True,
-                x=0.01,
-                xanchor="left",
-                y=1.02,
-                yanchor="top"
-            ),
-        ]
-    )
+    title="Crime Heatmap Analysis",
+    xaxis_title="Time Period",
+    yaxis_title="Crime Type",
+    height=600,
+    updatemenus=[
+        dict(
+            type="dropdown",
+            direction="down",
+            buttons=list([
+                dict(
+                    args=[{"visible": [True, False, False]}],
+                    label="By Time of Day",
+                    method="restyle"
+                ),
+                dict(
+                    args=[{"visible": [False, True, False]}],
+                    label="By Season",
+                    method="restyle"
+                ),
+                dict(
+                    args=[{"visible": [False, False, True]}],
+                    label="By Year",
+                    method="restyle"
+                )
+            ]),
+            pad={"r": 10, "t": 10},
+            showactive=True,
+            x=1.0,         
+            xanchor="right",
+            y=1.15,        
+            yanchor="top"
+        ),
+    ]
+)
 
     return html.Div([
         html.H3("Crime Heatmap Analysis"),
