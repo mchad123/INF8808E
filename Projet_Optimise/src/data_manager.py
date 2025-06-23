@@ -9,7 +9,6 @@ from functools import lru_cache
 from typing import Optional, Dict, Any
 import logging
 
-# Configuration du logging pour le debug
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -39,7 +38,7 @@ class DataManager:
         """
         Détermine le chemin correct vers le fichier CSV
         """
-        # Essayer différents chemins possibles
+       
         possible_paths = [
             "src/data/actes-criminels.csv",
             "data/actes-criminels.csv",
@@ -53,7 +52,7 @@ class DataManager:
                 logger.info(f"Fichier CSV trouvé à: {path}")
                 return path
         
-        # Si aucun chemin ne fonctionne, utiliser le chemin par défaut
+       
         default_path = "src/data/actes-criminels.csv"
         logger.warning(f"Fichier CSV non trouvé, utilisation du chemin par défaut: {default_path}")
         return default_path
@@ -74,7 +73,7 @@ class DataManager:
                 self.raw_data = pd.read_csv(self.data_path, parse_dates=["DATE"])
                 logger.info(f"Données chargées: {len(self.raw_data)} lignes, {len(self.raw_data.columns)} colonnes")
                 
-                # Nettoyage et préparation des données de base
+               
                 self._prepare_base_data()
                 
             except Exception as e:
@@ -88,16 +87,13 @@ class DataManager:
         Prépare les données de base (colonnes communes utilisées par plusieurs visualisations)
         """
         if self.raw_data is not None:
-            # Ajout des colonnes temporelles communes
             self.raw_data["YEAR"] = self.raw_data["DATE"].dt.year
             self.raw_data["MONTH"] = self.raw_data["DATE"].dt.month
             self.raw_data["SEASON"] = self.raw_data["MONTH"] % 12 // 3 + 1
             
-            # Mapping des saisons
             season_map = {1: "Winter", 2: "Spring", 3: "Summer", 4: "Autumn"}
             self.raw_data["SEASON"] = self.raw_data["SEASON"].map(season_map)
             
-            # Nettoyage des données QUART
             if 'QUART' in self.raw_data.columns:
                 self.raw_data['QUART'] = self.raw_data['QUART'].str.lower()
                 self.raw_data['DayOfWeek'] = self.raw_data['DATE'].dt.dayofweek
@@ -105,7 +101,6 @@ class DataManager:
                     lambda x: 'Weekend' if x >= 5 else 'Weekday'
                 )
                 
-                # Mapping des périodes de la journée
                 time_labels = {
                     'jour': 'Day (09:01–16:00)',
                     'soir': 'Evening (16:01–00:00)',
@@ -139,10 +134,9 @@ class DataManager:
             logger.debug(f"Données filtrées trouvées en cache: {cache_key}")
             return self._processed_cache[cache_key].copy()
         
-        # Charger les données brutes si nécessaire
+       
         data = self.load_raw_data()
         
-        # Appliquer les filtres
         if start_year is not None:
             data = data[data['YEAR'] >= start_year]
         if end_year is not None:
@@ -152,7 +146,6 @@ class DataManager:
         if category is not None:
             data = data[data['CATEGORIE'] == category]
         
-        # Mettre en cache le résultat
         self._processed_cache[cache_key] = data.copy()
         logger.debug(f"Données filtrées mises en cache: {cache_key} ({len(data)} lignes)")
         
@@ -207,10 +200,8 @@ class DataManager:
             'data_shape': self.raw_data.shape if self.raw_data is not None else None
         }
 
-# Instance globale du gestionnaire de données
 data_manager = DataManager()
 
-# Fonctions utilitaires pour faciliter l'utilisation
 def get_data() -> pd.DataFrame:
     """Fonction utilitaire pour obtenir les données brutes"""
     return data_manager.load_raw_data()

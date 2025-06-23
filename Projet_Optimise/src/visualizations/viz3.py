@@ -205,12 +205,10 @@ def update_crime_traces(fig, max_points):
  
     fig.data = fig.data[:1] 
     
-    # Add optimized crime traces
     for crime_type, color in COLOR_MAP.items():
         crime_data = reduced_gdf[reduced_gdf["CrimeType"] == crime_type]
         
         if not crime_data.empty:
-            # Vectorized size calculation
             base_size = 8
             sizes = np.minimum(20, base_size + (crime_data['crime_count'].fillna(0) / 10))
 
@@ -228,7 +226,6 @@ def update_crime_traces(fig, max_points):
                 hovertemplate=crime_hover_template(crime_type)
             ))
 
-    # Update title
     fig.update_layout(
         title_text=f"Montreal Crime Map - Top {max_points} Crime Types per District"
     )

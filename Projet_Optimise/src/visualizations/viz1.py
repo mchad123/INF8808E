@@ -3,14 +3,6 @@ import pandas as pd
 import plotly.graph_objects as go
 from data_manager import data_manager
 
-# Utilisation du gestionnaire de données centralisé au lieu de charger le CSV directement
-# df = pd.read_csv("data/actes-criminels.csv", parse_dates=["DATE"])  # ANCIEN CODE - SUPPRIMÉ
-# df["YEAR"] = df["DATE"].dt.year  # ANCIEN CODE - SUPPRIMÉ
-# df["MONTH"] = df["DATE"].dt.month  # ANCIEN CODE - SUPPRIMÉ
-# df["SEASON"] = df["MONTH"] % 12 // 3 + 1  # ANCIEN CODE - SUPPRIMÉ
-# season_map = {1: "Winter", 2: "Spring", 3: "Summer", 4: "Autumn"}  # ANCIEN CODE - SUPPRIMÉ
-# df["SEASON"] = df["SEASON"].map(season_map)  # ANCIEN CODE - SUPPRIMÉ
-
 def layout():
     return html.Div([
         html.Label("Select view"),

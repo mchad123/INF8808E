@@ -3,10 +3,6 @@ import plotly.graph_objects as go
 from dash import html, dcc
 from data_manager import data_manager
 
-# OPTIMISATION: Utilisation du gestionnaire de données centralisé au lieu de charger le CSV
-# ANCIEN CODE SUPPRIMÉ:
-# df = pd.read_csv("data/actes-criminels.csv")
-# Variables globales supprimées pour éviter les problèmes de performance
 
 def get_season(m):
     return (
@@ -20,20 +16,20 @@ def get_processed_data():
     """Obtient et traite les données pour viz5 avec mise en cache"""
     df = data_manager.get_data_for_viz5()
     
-    # Renommage des colonnes
+    
     df = df.rename(columns={
         "CATEGORIE": "CrimeType",
         "LONGITUDE": "Longitude",
         "LATITUDE": "Latitude"
     })
     
-    # Nettoyage des données
+   
     df = df.dropna(subset=["DATE"])
     df["Month"] = df["DATE"].dt.month
     df["Season"] = df["Month"].apply(get_season)
     df["CrimeType"] = df["CrimeType"].str.strip().str.lower().str.title()
 
-    # Traductions
+  
     time_translation = {
         "Jour": "Day",
         "Soir": "Evening",
@@ -65,7 +61,6 @@ def get_heatmap_data():
     return heat_time, heat_season, heat_year
 
 def layout():
-    # Obtenir les données des heatmaps
     heat_time, heat_season, heat_year = get_heatmap_data()
     
     fig = go.Figure()

@@ -236,7 +236,6 @@ def register_callbacks(app):
             return bar_fig, pie_fig, line_fig
             
         except Exception as e:
-            # Return empty figures with error messages
             import plotly.graph_objects as go
             
             error_fig = go.Figure()

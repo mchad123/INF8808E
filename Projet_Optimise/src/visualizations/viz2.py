@@ -4,17 +4,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 from data_manager import data_manager
 
-# Utilisation du gestionnaire de données centralisé au lieu de charger le CSV directement
-# ANCIEN CODE SUPPRIMÉ:
-# df_raw = pd.read_csv("data/actes-criminels.csv", parse_dates=["DATE"])
-# df_raw['QUART'] = df_raw['QUART'].str.lower()
-# df_raw['Year'] = df_raw['DATE'].dt.year
-# df_raw['DayOfWeek'] = df_raw['DATE'].dt.dayofweek
-# df_raw['Day Type'] = df_raw['DayOfWeek'].apply(lambda x: 'Weekend' if x >= 5 else 'Weekday')
-# time_labels = {...}
-# df_raw['Time of Day'] = df_raw['QUART'].map(time_labels)
-
-# Colors
 cute_colors = {
     'Day (09:01–16:00)': '#FFD580',
     'Evening (16:01–00:00)': '#D7BDE2',
@@ -64,7 +53,6 @@ def filter_data(start_year, end_year, pdq=None):
     """
     Filtre les données en utilisant le gestionnaire centralisé
     """
-    # Utilisation du gestionnaire de données avec cache
     return data_manager.get_filtered_data(
         start_year=start_year,
         end_year=end_year,

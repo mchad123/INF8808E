@@ -47,7 +47,7 @@ app.layout = html.Div([
         }
     ),
     
-    # Stores (hidden, used for data/state)
+   
     html.Div([
         dcc.Store(id="store-viz1"),
         dcc.Store(id="store-viz2"),
@@ -56,12 +56,11 @@ app.layout = html.Div([
         dcc.Store(id="store-viz5"),
     ]),
     
-    # Loading component for better UX
+   
     dcc.Loading(
         id="loading",
         type="default",
         children=[
-            # Main content area with enhanced styling
             html.Div([
                 html.Div(id="tab-content", className="content-container")
             ], style={
@@ -82,7 +81,7 @@ app.layout = html.Div([
     "flexDirection": "column"
 })
 
-# Enhanced CSS styles
+
 app.index_string = '''
 <!DOCTYPE html>
 <html>

@@ -10,7 +10,6 @@ def create_pdq_dimension_table():
     Based on Montreal Police Service districts and neighborhoods
     """
     pdq_data = {
-        # West District PDQs
         1: {"district": "West", "area": "Kirkland/West Island", "type": "Suburban", "description": "West Island suburbs"},
         3: {"district": "West", "area": "LaSalle", "type": "Mixed", "description": "Residential/Industrial mix"},
         4: {"district": "West", "area": "Verdun", "type": "Residential", "description": "Family neighborhood"},
@@ -22,7 +21,7 @@ def create_pdq_dimension_table():
         13: {"district": "West", "area": "NDG East", "type": "Residential", "description": "Notre-Dame-de-Grâce East"},
         26: {"district": "West", "area": "Pierrefonds", "type": "Suburban", "description": "West Island residential"},
         
-        # South Central District PDQs  
+      
         12: {"district": "South Central", "area": "Westmount/Downtown", "type": "Upscale", "description": "Westmount, upscale downtown"},
         15: {"district": "South Central", "area": "Outremont", "type": "Upscale", "description": "Chic residential area"},
         16: {"district": "South Central", "area": "Plateau West", "type": "Trendy", "description": "Mile End, trendy area"},
@@ -30,7 +29,7 @@ def create_pdq_dimension_table():
         21: {"district": "South Central", "area": "Downtown Core", "type": "Commercial", "description": "Business district, 24h station"},
         22: {"district": "South Central", "area": "Plateau East", "type": "Trendy", "description": "Plateau Mont-Royal"},
         
-        # North Zone District PDQs
+     
         10: {"district": "North", "area": "Ahuntsic West", "type": "Residential", "description": "Residential neighborhoods"},
         24: {"district": "North", "area": "Parc Extension", "type": "Dense Urban", "description": "Multicultural, dense"},
         27: {"district": "North", "area": "Villeray", "type": "Family", "description": "Little Italy area"},
@@ -42,7 +41,7 @@ def create_pdq_dimension_table():
         38: {"district": "North", "area": "Anjou", "type": "Residential", "description": "Residential area"},
         44: {"district": "North", "area": "Saint-Léonard", "type": "Mixed", "description": "Italian community area"},
         
-        # East Zone District PDQs
+       
         23: {"district": "East", "area": "Rosemont West", "type": "Residential", "description": "Family neighborhoods"},
         39: {"district": "East", "area": "Rosemont East", "type": "Residential", "description": "Petite-Patrie area"},
         42: {"district": "East", "area": "Mercier West", "type": "Working Class", "description": "Traditional working class"},
@@ -159,7 +158,6 @@ def create_scatter_plot(year_range=None, selected_districts=None):
     YOUR ORIGINAL FUNCTION - just added filtering parameters
     """
     try:
-        # OPTIMISATION: Utilisation du gestionnaire de données centralisé
         df = data_manager.get_data_for_viz4()
         df['YEAR'] = df['DATE'].dt.year
         
@@ -170,20 +168,16 @@ def create_scatter_plot(year_range=None, selected_districts=None):
             pdq_dim = create_pdq_dimension_table()
             district_pdqs = pdq_dim[pdq_dim['district'].isin(selected_districts)]['PDQ'].tolist()
             df = df[df['PDQ'].isin(district_pdqs)]
-        
-        # Load PDQ dimension table
+            
         pdq_dim = create_pdq_dimension_table()
         
-        # Create data points for each PDQ-Year combination
         scatter_data = []
         
-        # Create PDQ dimension table for tooltips
         pdq_dim = create_pdq_dimension_table()
         
         for pdq in df['PDQ'].unique():
             pdq_data = df[df['PDQ'] == pdq]
             
-            # Get PDQ information for tooltip
             pdq_info = pdq_dim[pdq_dim['PDQ'] == pdq]
             if not pdq_info.empty:
                 area = pdq_info.iloc[0]['area']
@@ -193,11 +187,8 @@ def create_scatter_plot(year_range=None, selected_districts=None):
             else:
                 pdq_tooltip = f"PDQ {pdq}"
             
-            # Get data for each year this PDQ had crimes
             for year in pdq_data['YEAR'].unique():
                 year_data = pdq_data[pdq_data['YEAR'] == year]
-                
-                # Find dominant crime type for this PDQ-year
                 crime_counts = year_data['CATEGORIE'].value_counts()
                 dominant_crime = crime_counts.index[0] if len(crime_counts) > 0 else 'Unknown'
                 crimes_this_year = len(year_data)
@@ -205,17 +196,14 @@ def create_scatter_plot(year_range=None, selected_districts=None):
                 scatter_data.append({
                     'YEAR': year,
                     'PDQ': pdq,
-                    'PDQ_Info': pdq_tooltip,  # Add tooltip info
+                    'PDQ_Info': pdq_tooltip,  
                     'crimes_this_year': crimes_this_year,
                     'dominant_crime': dominant_crime
                 })
         
         scatter_df = pd.DataFrame(scatter_data)
-        
-        # For now, keep original opacity without table interaction
         scatter_df['opacity'] = 0.7
         
-        # Create the scatter plot (keeping original design)
         fig = px.scatter(
             scatter_df,
             x='YEAR',
@@ -277,7 +265,6 @@ def create_scatter_plot(year_range=None, selected_districts=None):
         return fig
         
     except Exception as e:
-        # Return a simple error plot if data can't be loaded
         fig = go.Figure()
         fig.add_annotation(
             text=f"Error loading data: {str(e)}",
