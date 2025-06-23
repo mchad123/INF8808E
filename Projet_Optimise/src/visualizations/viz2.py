@@ -94,14 +94,16 @@ def create_bar_chart(df):
     fig.update_traces(
         texttemplate="%{text}",
         textposition="outside",
+        hovertemplate="<b>Crimes:</b> %{y:,}<extra></extra>"
     )
 
     fig.update_layout(
         xaxis_title="Time of Day",
         yaxis_title="Number of Crimes",
-        hovermode="x",
+        hovermode="closest",
         legend_title_text="Time of Day",
     )
+    fig.update_xaxes(showspikes=False)
 
     y_max = quart_counts["Crimes"].max()
     fig.update_yaxes(range=[0, y_max * 1.10], automargin=True)
@@ -154,6 +156,7 @@ def create_line_chart(df: pd.DataFrame):
         yaxis_title="Number of Crimes",
         hovermode="x unified",
         showlegend=False,
+        hoverlabel=dict(bgcolor="white"),
     )
 
     fig.update_xaxes(type="category")
@@ -161,7 +164,6 @@ def create_line_chart(df: pd.DataFrame):
 
 
 def layout():
-    # Utilisation du gestionnaire de données pour obtenir les années disponibles
     df_raw = data_manager.get_data_for_viz2()
     available_years = sorted(df_raw['YEAR'].dropna().unique())
     start_year = int(min(available_years))
