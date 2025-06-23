@@ -40,9 +40,8 @@ def layout():
     ])
 
 def update_graph(view_option, chart_type):
-    # Utilisation du gestionnaire de données centralisé
     df = data_manager.get_data_for_viz1()
-    
+
     if view_option == "Yearly":
         df_view = df.groupby("YEAR").size().reset_index(name="Crimes")
         df_view = df_view[df_view["YEAR"].between(2015, 2025)]
@@ -63,26 +62,41 @@ def update_graph(view_option, chart_type):
     median_crimes = df_view["Crimes"].median()
 
     fig = go.Figure()
+
+    hover_template = f"<b>%{{x}}</b><br>Crimes: %{{y:,}}<extra></extra>"
+
     if chart_type == "Line":
-        fig.add_trace(go.Scatter(x=df_view[x_col], y=df_view["Crimes"], mode="lines+markers", name="Crimes"))
+        fig.add_trace(go.Scatter(
+            x=df_view[x_col],
+            y=df_view["Crimes"],
+            mode="lines+markers",
+            name="Crimes",
+            hovertemplate=hover_template
+        ))
     else:
-        fig.add_trace(go.Bar(x=df_view[x_col], y=df_view["Crimes"], name="Crimes"))
+        fig.add_trace(go.Bar(
+            x=df_view[x_col],
+            y=df_view["Crimes"],
+            name="Crimes",
+            hovertemplate=hover_template
+        ))
 
     fig.add_trace(go.Scatter(
         x=df_view[x_col],
         y=[median_crimes] * len(df_view),
         mode="lines",
         name=f"Median: {median_crimes:.0f}",
-        line=dict(color="red", dash="dash")
+        line=dict(color="red", dash="dash"),
+        hoverinfo='skip'
     ))
 
     fig.update_layout(
         title=chart_title,
         xaxis_title=view_option,
         yaxis_title="Number of Crimes",
-        hovermode="x",
-        legend_title="Legend"
+        hovermode="x unified",
+        legend_title="Legend",
+        margin=dict(l=60, r=40, t=60, b=60)
     )
 
     return fig
-
